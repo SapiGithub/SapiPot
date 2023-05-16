@@ -1,30 +1,49 @@
-import os
 from scapy.all import *
-import argparse
-from scapy.all import *
+import json
+import time
 
-# ARP
-def check_arp_spoofing(interfaces, timeout):
-    results = []
-    for iface in interfaces:
-        try:
-            my_mac = get_if_hwaddr(iface)
-            pkt = (Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(op="who-has",hwsrc=my_mac,psrc="0.0.0.0",pdst="255.255.255.255"))
-            ans, unans = srp(pkt, iface=iface, timeout=timeout, retry=1, verbose=0)
-            for snd,rcv in ans:
-                if rcv[ARP].hwsrc != my_mac:
-                    result = (iface, snd[Ether].src, snd[ARP].psrc, rcv[ARP].hwsrc, rcv[ARP].psrc)
-                    results.append(result)
-        except Exception as e:
-            print(f"Error checking interface {iface}: {e}")
-    return results
+# Define the IP address range to scan
+IP_RANGE = "192.168.1.0/24"
 
-if __name__ == "__main__":
-    results = check_arp_spoofing(['wlan0', 'eth0'], 2.0)
-    if len(results) > 0:
-        print("ARP spoofing detected on the following interfaces:")
-        for iface, mac1, ip1, mac2, ip2 in results:
-            print(f"Interface: {iface}, MAC address 1: {mac1}, IP address 1: {ip1}, MAC address 2: {mac2}, IP address 2: {ip2}")
-    else:
-        print("No ARP spoofing detected")
+# Define the number of SYN packets to consider a flood
+SYN_THRESHOLD = 50
 
+# Define the name of the JSON file to save the syn_count dictionary to
+JSON_FILE = "syn_count.json"
+
+# Load the existing syn_count dictionary from the JSON file, if it exists
+try:
+    with open(JSON_FILE, "r") as f:
+        syn_count = json.load(f)
+except FileNotFoundError:
+    syn_count = {}
+
+# Define a function to save the syn_count dictionary to the JSON file
+def save_syn_count():
+    with open(JSON_FILE, "w") as f:
+        json.dump(syn_count, f)
+
+# Define a function to remove any entries from syn_count that haven't had any activity for 30 minutes
+def remove_inactive_ips():
+    now = time.time()
+    for ip in list(syn_count.keys()):
+        last_activity_time = syn_count[ip]["last_activity_time"]
+        if now - last_activity_time > 1800:
+            del syn_count[ip]
+    save_syn_count()
+
+# Define a function to handle incoming packets
+def handle_packet(packet):
+    if packet.haslayer(scapy.TCP) and packet[TCP].flags & scapy.TCP.SYN:
+        src_ip = packet[scapy.IP].src
+        if src_ip in syn_count:
+            syn_count[src_ip]["count"] += 1
+            syn_count[src_ip]["last_activity_time"] = time.time()
+            if syn_count[src_ip]["count"] >= SYN_THRESHOLD:
+                print(f"SYN flood detected from {src_ip}")
+        else:
+            syn_count[src_ip] = {"count": 1, "last_activity_time": time.time()}
+    remove_inactive_ips()
+
+# Start the packet capture
+sniff(filter=f"src net {IP_RANGE} and tcp", prn=handle_packet)
