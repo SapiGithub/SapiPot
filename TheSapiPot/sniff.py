@@ -1,23 +1,24 @@
 from scapy.all import *
+from TheSapiPot.filter import has_ip_address
 import threading
 
 class Sniffer:
-    def __init__(self, prn=None, interface=None, port_list=None):
-        if interface:
-            self.interface = interface
-        else:
-            self.interface = conf.iface
+    def __init__(self, prn=None, interface=None,host_ip=None):
+        self.host_ip=host_ip
+        self.interface = interface
         if prn:
             self.prn = prn
         else:
             self.prn = lambda p: f"{p.summary()}"
-        self.ports = port_list
+        
+        self.protocols = ['tcp','arp','udp']
         self.thread = {}
         
     def run(self):
-        for port in self.ports:
-            self.thread[port] = threading.Thread(target=self._sniff, args=(port,))
-            self.thread[port].start()
+        for protocol in self.protocols:
+            self.thread[protocol] = threading.Thread(target=self._sniff, args=(protocol,))
+            self.thread[protocol].start()
 
-    def _sniff(self,port):
-        sniff(prn=self.prn, interface=self.interface, store=False, filter = f'dst port {port}')
+    def _sniff(self,protocol):
+        packet_filter = lambda p:has_ip_address(p, self.host_ip)
+        sniff(prn=self.prn, iface=self.interface,lfilter=packet_filter,store=False, filter=f'{protocol}')

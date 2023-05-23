@@ -3,9 +3,10 @@ import logging
 import hashlib
 import os
 from scapy.all import *
+import scapy.all as scapy
 from scapy.layers.inet import IP, TCP
 from TheSapiPot.sniff import Sniffer
-from TheSapiPot.filter import is_tcp_packet, has_ip_address
+from TheSapiPot.packetARP import check_MTIM
 import json
 # import tensorflow as tf
 import random
@@ -16,10 +17,9 @@ import numpy as np
 import pickle
 
 class HoneyPot(object):
-    def __init__(self,host,interface,ports,logfile):
-        self.bind_ip = host
+    def __init__(self,host,interface,logfile):
+        self.host = host
         self.interface = interface
-        self.ports = ports
         self.logfile = logfile
         # hayperparam
         max_length = 100
@@ -40,21 +40,25 @@ class HoneyPot(object):
         )
 
         self.logger = logging.getLogger(__name__)
-        self.logger.info(f'[*] ports: {self.ports}')
         self.logger.info(f'[*] logfile: {self.logfile}')
         self.logger.info("[*] HoneyPot Initializing....... ")
     
     def logging_packet(self,packet: Packet):
-        ip = packet[IP]
-        tcp = packet[TCP]
-        flags = tcp.flags
-        if (packet.haslayer(Raw)):
-            data = packet[Raw].load.decode()
-            self.logger.info(f"[PAYLOAD] {data} \n")
-    
+        if packet.haslayer(TCP):
+            ip = packet[IP]
+            tcp = packet[TCP]
+            flags = tcp.flags
+            if (packet.haslayer(Raw)):
+                data = packet[Raw].load.decode()
+                self.logger.info(f"{packet.summary()}\n[PAYLOAD] {data}\n")
+        if packet.haslayer(scapy.ARP):
+            if check_MTIM(packet):
+                self.logger.info(f"{packet.summary()}\n[ARP poison]\n")
+            else:
+                pass
+            
 
     def run(self):
-        print(f"[*] Filter: TCP For IpAddress: {self.bind_ip}")
-        packet_filter = lambda p: is_tcp_packet(p) and has_ip_address(p, self.bind_ip)
-        sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,port_list=self.ports)
+        print(f"[*] Filter: TCP For IpAddress: {self.host}")
+        sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,host_ip=self.host)
         sniffer.run()

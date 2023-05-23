@@ -1,15 +1,13 @@
-import os
 from scapy.all import *
 import scapy.all as scapy
-import argparse
 
 # ARP
-def check_MTIM(packet: Packet):
+def check_MTIM(packet: Packet) -> bool:
     if packet.haslayer(scapy.ARP) and packet[scapy.ARP].op == 2:
         realMacAddress = scapy.arping(packet[scapy.ARP].psrc)
         recivMacAddress =  packet[scapy.ARP].hwsrc
         if realMacAddress != recivMacAddress:
-            print("ARP Spuff")
+            return True
 
 
 # if __name__ == "__main__":
