@@ -16,8 +16,9 @@ import numpy as np
 import pickle
 
 class HoneyPot(object):
-    def __init__(self,bind_ip,ports,logfile):
-        self.bind_ip = bind_ip
+    def __init__(self,host,interface,ports,logfile):
+        self.bind_ip = host
+        self.interface = interface
         self.ports = ports
         self.logfile = logfile
         # hayperparam
@@ -50,10 +51,10 @@ class HoneyPot(object):
         if (packet.haslayer(Raw)):
             data = packet[Raw].load.decode()
             self.logger.info(f"[PAYLOAD] {data} \n")
-        
+    
 
     def run(self):
         print(f"[*] Filter: TCP For IpAddress: {self.bind_ip}")
         packet_filter = lambda p: is_tcp_packet(p) and has_ip_address(p, self.bind_ip)
-        sniffer = Sniffer(prn=self.logging_packet, packet_filter=packet_filter,port_list=self.ports)
+        sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,port_list=self.ports)
         sniffer.run()

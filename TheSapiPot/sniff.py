@@ -2,11 +2,11 @@ from scapy.all import *
 import threading
 
 class Sniffer:
-    def __init__(self, prn=None, packet_filter=None, port_list=None):
-        if filter:
-            self.packet_filter = packet_filter
+    def __init__(self, prn=None, interface=None, port_list=None):
+        if interface:
+            self.interface = interface
         else:
-            self.packet_filter = lambda: True
+            self.interface = conf.iface
         if prn:
             self.prn = prn
         else:
@@ -20,4 +20,4 @@ class Sniffer:
             self.thread[port].start()
 
     def _sniff(self,port):
-        sniff(prn=self.prn, lfilter=self.packet_filter, store=False, filter = f'dst port {port}')
+        sniff(prn=self.prn, interface=self.interface, store=False, filter = f'dst port {port}')
