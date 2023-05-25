@@ -1,20 +1,10 @@
-from datetime import timedelta
 import logging
-import hashlib
-import os
 from scapy.all import *
 import scapy.all as scapy
 from scapy.layers.inet import IP, TCP
 from TheSapiPot.sniff import Sniffer
 from TheSapiPot.packetARP import check_MTIM
-import json
-# import tensorflow as tf
-import random
-# from tensorflow.keras.preprocessing.text import Tokenizer
-# from tensorflow.keras.preprocessing.sequence import pad_sequences
-import urllib.parse
-import numpy as np
-import pickle
+from TheSapiPot.packetHTTP import modelHTTP
 
 class HoneyPot(object):
     def __init__(self,host,interface,logfile):
@@ -48,12 +38,20 @@ class HoneyPot(object):
             ip = packet[IP]
             tcp = packet[TCP]
             flags = tcp.flags
-            if (packet.haslayer(Raw)):
-                data = packet[Raw].load.decode()
-                self.logger.info(f"{packet.summary()}\n[PAYLOAD] {data}\n")
+            if (packet.haslayer(Raw) and ip.dst == self.host):
+                try:
+                    data = packet[Raw].load.decode()
+                    # x,r = data.split('\r\n\r\n')
+                    # self.logger.info(f"{packet.summary()}\n[data] {data}\n")
+                    prd = modelHTTP(data)
+                    self.logger.info(f"[Prediction]\n{data}\n{prd.predicts()}\n")
+                except UnicodeDecodeError:
+                    pass
+            if (flags == "RA" or flags == "R") and (tcp.dport != 'http' or tcp.sport != 'http'):
+                self.logger.info(f"[Port Scan]\n{packet.summary()}\n")
         if packet.haslayer(scapy.ARP):
             if check_MTIM(packet):
-                self.logger.info(f"{packet.summary()}\n[ARP poison]\n")
+                self.logger.info(f"{packet.summary()}\n")
             else:
                 pass
             

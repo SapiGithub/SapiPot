@@ -29,6 +29,6 @@ config.read(config_filepath)
 host = config.get("default",'host',raw=True,fallback=get_if_addr(conf.iface))
 interface = config.get("default",'interface',raw=True,fallback=conf.iface)
 logfile = config.get("default",'logfile', raw=True,fallback='/var/log/sapipot.log')
-    
+  
 honeyPot = HoneyPot(host,interface,logfile)
 honeyPot.run()

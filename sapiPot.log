@@ -1,2 +1,40 @@
-23-05-23 22:17:08 TheSapiPot   INFO     [*] logfile: sapiPot.log
-23-05-23 22:17:08 TheSapiPot   INFO     [*] HoneyPot Initializing....... 
+23-05-26 00:59:45 TheSapiPot   INFO     [*] logfile: sapiPot.log
+23-05-26 00:59:45 TheSapiPot   INFO     [*] HoneyPot Initializing....... 
+23-05-26 00:59:50 TheSapiPot   INFO     [Prediction]
+POST /dvwa/login.php HTTP/1.1
+Host: 192.168.8.189
+Connection: keep-alive
+Content-Length: 88
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+Origin: http://192.168.8.189
+Content-Type: application/x-www-form-urlencoded
+User-Agent: Mozilla/5.0 (Linux; Android 6.0.1; CPH1701) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://192.168.8.189/dvwa/login.php
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9
+Cookie: PHPSESSID=7mn6o62ofateb14j3fhru2fujp; security=impossible
+
+username=Asbdbd&password=shsbddb&Login=Login&user_token=70b5a00108f1b1c9e51119519e1a0a70
+Brute force attack: 24.51% Command Injection(Unix): 21.38% Command Injection(Windows): 0.78% RFI/LFI: 1.35% SQL injection: 30.14% XSS: 0.19%
+
+23-05-26 00:59:51 TheSapiPot   INFO     [Prediction]
+GET /dvwa/login.php HTTP/1.1
+Host: 192.168.8.189
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Linux; Android 6.0.1; CPH1701) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://192.168.8.189/dvwa/login.php
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9
+Cookie: PHPSESSID=7mn6o62ofateb14j3fhru2fujp; security=impossible
+
+
+None
+
+23-05-26 01:00:05 TheSapiPot   INFO     [Port Scan]
+Ether / IP / TCP 34.117.237.239:https > 192.168.8.189:54122 RA
+
