@@ -47,7 +47,7 @@ class HoneyPot(object):
                     self.logger.info(f"[Prediction]\n{data}\n{prd.predicts()}\n")
                 except UnicodeDecodeError:
                     pass
-            if (flags == "RA" or flags == "R") and (tcp.dport != 'http' or tcp.sport != 'http'):
+            if (flags in ["RA" ,"R", "FA"]) and (tcp.dport != 'http' or tcp.sport != 'http'):
                 self.logger.info(f"[Port Scan]\n{packet.summary()}\n")
         if packet.haslayer(scapy.ARP):
             if check_MTIM(packet):
