@@ -11,16 +11,7 @@ class HoneyPot(object):
         self.host = host
         self.interface = interface
         self.logfile = logfile
-        # hayperparam
-        max_length = 100
-        trunc_type='post'
-        padding_type='post'
-
-        # model, and data
-        # self.model = tf.keras.models.load_model("/content/drive/MyDrive/Colab_Notebooks/MyModel/SentAn")
-        # with open('/content/drive/MyDrive/Colab_Notebooks/tokenizer.pickle', 'rb') as handle:
-        #     self.tokenizer,self.labels_len = pickle.load(handle)
-
+        
         logging.basicConfig(
             level=logging.DEBUG,
             format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -41,8 +32,6 @@ class HoneyPot(object):
             if (packet.haslayer(Raw) and ip.dst == self.host):
                 try:
                     data = packet[Raw].load.decode()
-                    # x,r = data.split('\r\n\r\n')
-                    # self.logger.info(f"{packet.summary()}\n[data] {data}\n")
                     prd = modelHTTP(data)
                     self.logger.info(f"[Prediction]\n{data}\n{prd.predicts()}\n")
                 except UnicodeDecodeError:
@@ -51,7 +40,7 @@ class HoneyPot(object):
                 self.logger.info(f"[Port Scan]\n{packet.summary()}\n")
         if packet.haslayer(scapy.ARP):
             if check_MTIM(packet):
-                self.logger.info(f"{packet.summary()}\n")
+                self.logger.info(f"[ARP Poisson]\n{packet.summary()}\n")
             else:
                 pass
             

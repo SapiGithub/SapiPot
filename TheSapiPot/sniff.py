@@ -1,5 +1,5 @@
 from scapy.all import *
-from TheSapiPot.filter import has_ip_address
+from TheSapiPot.filter import is_host
 import threading
 
 class Sniffer:
@@ -11,7 +11,7 @@ class Sniffer:
         else:
             self.prn = lambda p: f"{p.summary()}"
         
-        self.protocols = ['tcp','arp','udp']
+        self.protocols = ['tcp','arp']
         self.thread = {}
         
     def run(self):
@@ -20,5 +20,5 @@ class Sniffer:
             self.thread[protocol].start()
 
     def _sniff(self,protocol):
-        packet_filter = lambda p:has_ip_address(p, self.host_ip)
+        packet_filter = lambda p:is_host(p, self.host_ip)
         sniff(prn=self.prn, iface=self.interface,lfilter=packet_filter,store=False, filter=f'{protocol}')
