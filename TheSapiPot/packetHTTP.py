@@ -1,13 +1,15 @@
 import tensorflow as tf
+from scapy.all import *
+from scapy.layers.http import HTTPRequest
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import pickle
-from urllib.parse import urlparse, parse_qs,unquote_plus
+from urllib.parse import unquote_plus
 import re
 
 class modelHTTP:
-    def __init__(self,request):
+    def __init__(self,request: Packet):
         self.max_length = 300
         self.trunc_type='post'
         self.padding_type='post'
@@ -16,7 +18,7 @@ class modelHTTP:
         with open('TheSapiPot/model/tokenizer_sentAn.pickle', 'rb') as handle:
             self.tokenizer,self.labels_len = pickle.load(handle)
     
-    def unquote_link(self,url_link):
+    def unquote_link(self,url_link:str):
         try:
             link = unquote_plus(unquote_plus(url_link))
             return link
@@ -24,29 +26,26 @@ class modelHTTP:
             return link
         
         
-    def make_url(self, request):
-        headers,payload = request.split('\r\n\r\n')
-        if payload:
-            referer = None
-            for header in headers.split('\r\n'):
-                if header.startswith('Referer:'):
-                    referer = header.split('Referer: ')[1]
-            return(referer + '?' + payload)
+    def make_url(self, request: Packet):
+        httpRequest = request[HTTPRequest]
+        if request.haslayer(Raw):
+            return httpRequest.Path.decode()+"?"+request[Raw].load.decode()
         else:
-            header = headers.split('\r\n')
-            head = header[0].split(" ")
-            return(head[1])
+            return httpRequest.Path.decode()
                     
-
-    def extract_variables_from_requests(self,request):
+    def extract_variables_from_requests(self,request: Packet):
         url = self.make_url(request)
-        url = self.unquote_link(url)
-        parsed_url = urlparse(url)
-        query_string = parsed_url.query
-        query_vars = parse_qs(query_string)  
-        return query_vars
+        try:
+            base_url, query_string = url.split('?')
+            params = query_string.split('&')
+            updated_params = [param for param in params if not param.startswith('user_token=')]
+            updated_query_string = '&'.join(updated_params)
+            updated_url = updated_query_string
+            return updated_url
+        except ValueError:
+            return None
 
-    def spaced_variables(self,var_list):
+    def spaced_variables(self,var_list:str):
         escaped_string = re.sub(r'([:()])', r'\\\1', var_list)
         spaced_string = ' '.join(escaped_string)
         return spaced_string
@@ -59,11 +58,11 @@ class modelHTTP:
             sequences = self.tokenizer.texts_to_sequences(sentence)
             padded = pad_sequences(sequences, maxlen=self.max_length, padding=self.padding_type, truncating=self.trunc_type)
             results = self.model.predict(padded,verbose=0)[0]
-            if np.sum(results) > .4:
+            if np.sum(results) > .5:
                 data_percentages = results * 100
                 output = ''
                 for i in range(len(self.labels_len)):
-                    output += f'{self.labels_len[i]}: {data_percentages[i]:.2f}% '
+                    output += f'\n{self.labels_len[i]}: {data_percentages[i]:.2f}% '
                 output = output.strip()
                 return(output)
             else:

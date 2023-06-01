@@ -11,7 +11,7 @@ class Sniffer:
         else:
             self.prn = lambda p: f"{p.summary()}"
         
-        self.protocols = ['tcp','arp']
+        self.protocols = ['tcp','arp','udp']
         self.thread = {}
         
     def run(self):
