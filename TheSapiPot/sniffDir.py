@@ -1,37 +1,57 @@
 import os
-import pyinotify
+import time
+import shutil
+import logging
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 
-class EventProcessor(pyinotify.ProcessEvent):
-    _methods = ["IN_CREATE",
-                "IN_OPEN",
-                "IN_ACCESS",
-                "IN_ATTRIB",
-                "IN_CLOSE_NOWRITE",
-                "IN_CLOSE_WRITE",
-                "IN_DELETE",
-                "IN_DELETE_SELF",
-                "IN_IGNORED",
-                "IN_MODIFY",
-                "IN_MOVE_SELF",
-                "IN_MOVED_FROM",
-                "IN_MOVED_TO",
-                "IN_Q_OVERFLOW",
-                "IN_UNMOUNT",
-                "default"]
-def monitor_run(dir_path,logfile):
-    def process_generator(cls, method):
-        def _method_name(self, event):
-            logfile.info(f"[File Monitor]\n[*]Method: {method}\n[*]Even: {event} \n")
-        _method_name.__name__ = "process_{}".format(method)
-        setattr(cls, _method_name.__name__, _method_name)
+class FolderMonitor(FileSystemEventHandler):
+    def __init__(self, monitor_folder, log_file):
+        super().__init__()
+        self.monitor_folder = monitor_folder
+        self.logger = log_file
+        # self.log_file = log_file
+        # self.logger = self.setup_logger()
+        self.is_directory = lambda arg: "Directory" if arg else "File"
 
-    for method in EventProcessor._methods:
-        process_generator(EventProcessor, method)
 
-    watch_manager = pyinotify.WatchManager()
-    event_notifier = pyinotify.Notifier(watch_manager, EventProcessor())
+    # def setup_logger(self):
+    #     logger = logging.getLogger('FolderMonitor')
+    #     logger.setLevel(logging.INFO)
 
-    watch_this = os.path.abspath(dir_path)
-    watch_manager.add_watch(watch_this, pyinotify.ALL_EVENTS)
-    event_notifier.loop()
+    #     # Create a file handler and set the log file
+    #     file_handler = logging.FileHandler(self.log_file)
+    #     formatter = logging.Formatter('%(asctime)s - %(message)s')
+    #     file_handler.setFormatter(formatter)
+    #     logger.addHandler(file_handler)
+
+        # return logger
+    def on_any_event(self, event):
+        # if event.is_directory and event.src_path == os.path.expanduser(self.monitor_folder):
+        self.logger.info(f'[File Monitor]\n[*]Event Type: {event.event_type}\n[*]Target: {event.src_path}\n[*]Target Type: {self.is_directory(event.is_directory)}')
+    # def on_deleted(self, event):
+    #     if event.is_directory and event.src_path == os.path.expanduser(self.monitor_folder):
+    #         self.logger.info(f'Folder {self.monitor_folder} was deleted')
+
+
+def start_monitoring(monitor_folder, log_file):
+    monitor = FolderMonitor(monitor_folder, log_file)
+    observer = Observer()
+    observer.schedule(monitor, os.path.expanduser(monitor_folder), recursive=True)
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+
+    observer.join()
+
+# desktop_path = os.path.expanduser("~/Desktop")
+# folder_path = os.path.join(desktop_path, "SapiDirFile")
+
+# logf = "wd.log"
+
+# start_monitoring(folder_path,logf)

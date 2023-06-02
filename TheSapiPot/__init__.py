@@ -6,7 +6,7 @@ from scapy.layers.http import HTTPRequest
 from TheSapiPot.sniff import Sniffer
 from TheSapiPot.packetARP import check_MTIM
 from TheSapiPot.packetHTTP import modelHTTP
-from TheSapiPot.sniffDir import monitor_run
+from TheSapiPot.sniffDir import start_monitoring
 
 class HoneyPot(object):
     def __init__(self,host,interface,dirfile,logfile):
@@ -24,6 +24,7 @@ class HoneyPot(object):
         )
 
         self.logger = logging.getLogger(__name__)
+        logging.getLogger('watchdog.observers.inotify_buffer').setLevel(logging.WARNING)
         self.logger.info(f'[*] logfile: {self.logfile}')
         self.logger.info("[*] HoneyPot Initializing....... ")
     
@@ -43,7 +44,7 @@ class HoneyPot(object):
                     pass 
             if (flags in ["RA" ,"R", "FA", "F"]) and not ((tcp.dport in [80,8080,443] or tcp.sport in [80,8080,443])):
                 print(packet[TCP])
-                print(tcp.sport)
+                print(type(tcp.sport))
                 self.logger.info(f"[Port Scan]\n[*]Packet Summary: {packet.summary()}\n")
         if packet.haslayer(ARP):
             if check_MTIM(packet):
@@ -63,4 +64,4 @@ class HoneyPot(object):
         print(f"[*] Filter: For IpAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
         sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,host_ip=self.host)
         sniffer.run()
-        monitor_run(self.dirfile,self.logger)
+        start_monitoring(self.dirfile,self.logger)
