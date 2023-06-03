@@ -70,6 +70,8 @@ This project is licensed under the [MIT License](LICENSE).
 - [NumPy](https://numpy.org/) - A fundamental package for scientific computing with Python.
 - [urllib3](https://urllib3.readthedocs.io/) - A powerful HTTP client for Python.
 - [Watchdog](https://pythonhosted.org/watchdog/) - A Python library for monitoring file system events.
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings) - A really good resources for pyloads
+- [Payload Box](https://github.com/payloadbox) - More really good resorces
 
 ## Disclaimer
 This honeypot is intended for educational and research purposes only. The creators and contributors are not responsible for any misuse or illegal activities conducted with this software.
