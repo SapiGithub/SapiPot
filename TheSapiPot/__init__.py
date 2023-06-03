@@ -43,8 +43,6 @@ class HoneyPot(object):
                 else:
                     pass 
             if (flags in ["RA" ,"R", "FA", "F"]) and not ((tcp.dport in [80,8080,443] or tcp.sport in [80,8080,443])):
-                print(packet[TCP])
-                print(type(tcp.sport))
                 self.logger.info(f"[Port Scan]\n[*]Packet Summary: {packet.summary()}\n")
         if packet.haslayer(ARP):
             if check_MTIM(packet):
@@ -52,7 +50,7 @@ class HoneyPot(object):
             else:
                 pass
         if packet.haslayer(UDP):
-            piptry:
+            try:
                 ip = packet[IP]
                 if ip.dst == self.host:
                     self.logger.info(f"[UDP port scan]\nPacket Summary: {packet.summary()}\n")
