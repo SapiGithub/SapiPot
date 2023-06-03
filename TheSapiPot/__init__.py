@@ -52,7 +52,7 @@ class HoneyPot(object):
             else:
                 pass
         if packet.haslayer(UDP):
-            try:
+            piptry:
                 ip = packet[IP]
                 if ip.dst == self.host:
                     self.logger.info(f"[UDP port scan]\nPacket Summary: {packet.summary()}\n")
