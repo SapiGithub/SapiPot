@@ -26,7 +26,7 @@ cd SapiPot
 3. Install the required dependencies using pip:
 
 ```bash
-pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
 ```
 
 ## Usage
