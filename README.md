@@ -44,9 +44,9 @@ sudo python3 -m TheSapiPot <config_filepath>
 
 ## Configuration
 - `TheSapiPot` - Main script for running the honeypot and handling incoming connections.
-- `sapipot.ini` - Configuration file for customizing the honeypot settings.
+- `sapipot.ini` - Example forConfiguration file for customizing the honeypot settings.
 - `TheSapiPot/model/SentAn` - Directory containing TensorFlow models for sentiment analysis.
-- `sapipot.log` - Example of Log file where honeypot logs are stored.
+- `sapipot.log` - Example for Log file where honeypot logs are stored.
 
 ## Contributing
 Contributions are welcome! If you would like to contribute to this project, please follow these steps:
