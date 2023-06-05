@@ -38,7 +38,7 @@ sudo pip3 install -r requirements.txt
 sudo python3 -m TheSapiPot <config_filepath>
 ```
 
-3. The honeypot will start listening for incoming connections on the specified ports.
+3. The honeypot will start listening for incoming connections on the specified Ip in interface.
 
 4. Monitor the honeypot logs and analyze the detected attacks.
 
