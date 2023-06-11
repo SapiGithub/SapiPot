@@ -3,7 +3,7 @@
 This project focuses on creating a honeypot that specializes in TCP HTTP payload detection using TensorFlow. The honeypot is designed to detect various types of attacks, including Brute Force Attack, Command Injection (Unix), Command Injection (Windows), RFI/LFI, Reverse Shell, SQL Injection, and XSS. It incorporates sentiment analysis to analyze the malicious intent behind the payloads. Additionally, the honeypot includes additional features such as Port Scan Detection (TCP, UDP), ARP Spoof detection, and Folder Monitoring.
 
 ## Dependencies
-- scapy==2.4.5+g9420c22
+- scapy==2.4.5
 - tensorflow==2.12.*
 - numpy==1.23.5
 - urllib3==1.26.12
