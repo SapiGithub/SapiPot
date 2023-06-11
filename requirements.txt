@@ -1,4 +1,4 @@
-scapy==2.4.5+g9420c22
+scapy==2.4.5
 tensorflow==2.12.*
 numpy==1.23.5
 urllib3==1.26.12
