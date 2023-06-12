@@ -11,4 +11,4 @@ def is_host(packet: Packet, ip_address: str) -> bool:
         return ip_address in (i.pdst)
     if packet.haslayer(UDP) and packet.haslayer(IP):
         i = packet[IP]
-        return ip_address in (i.pdst)
+        return ip_address in (i.dst)
