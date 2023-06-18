@@ -66,6 +66,6 @@ class modelHTTP:
                 output = output.strip()
                 return(output)
             else:
-                pass
+                return None
         else:
-            pass
+            return None
