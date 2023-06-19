@@ -5,7 +5,7 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import pickle
-from urllib.parse import unquote_plus
+from urllib.parse import unquote_plus,urlparse, parse_qs, urlencode, urlunparse
 import re
 
 class modelHTTP:
@@ -36,12 +36,16 @@ class modelHTTP:
     def extract_variables_from_requests(self,request: Packet):
         url = self.make_url(request)
         try:
-            base_url, query_string = url.split('?')
-            params = query_string.split('&')
-            updated_params = [param for param in params if not param.startswith('user_token=')]
-            updated_query_string = '&'.join(updated_params)
-            updated_url = updated_query_string
-            return updated_url
+            parsed_url = urlparse(url)
+            query_params = parse_qs(parsed_url.query)
+
+            if 'user_token' in query_params:
+                del query_params['user_token']
+
+            query_values = [value for values in query_params.values() for value in values]
+            query_string = ' '.join(query_values)
+
+            return query_string
         except ValueError:
             return None
 
