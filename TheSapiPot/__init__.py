@@ -53,7 +53,7 @@ class HoneyPot(object):
             try:
                 ip = packet[IP]
                 if ip.dst == self.host:
-                    self.logger.info(f"[UDP port scan]\nPacket Summary: {packet.summary()}\n")
+                    self.logger.info(f"[UDP port scan]\n[*]Packet Summary: {packet.summary()}\n")
             except IndexError:
                 pass
 
