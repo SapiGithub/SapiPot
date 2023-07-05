@@ -28,8 +28,8 @@ if len(sys.argv) < 2 or sys.argv[1] in ['-h','--help']:
 config_filepath = sys.argv[1]
 config = configparser.ConfigParser()
 config.read(config_filepath)
-host = config.get("default",'host',raw=True,fallback=get_if_addr(conf.iface))
 interface = config.get("default",'interface',raw=True,fallback=conf.iface)
+host = get_if_addr(interface)
 dirfile = config.get("default",'dirfile',raw=True)
 logfile = config.get("default",'logfile', raw=True)
 if(dirfile == ""):
