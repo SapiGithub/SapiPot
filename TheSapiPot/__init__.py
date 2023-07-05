@@ -58,17 +58,18 @@ class HoneyPot:
 
     def run(self):
         signal.signal(signal.SIGINT, self.signal_handler)
-
+    
         print(f"[*] Filter: For IPAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
         sniffer = Sniffer(prn=self.logging_packet, interface=self.interface, host_ip=self.host)
         monitor_thread = threading.Thread(target=start_monitoring, args=(self.dirfile, self.logger))
-
-        sniffer_thread = threading.Thread(target=sniffer.run, args=(self.stop,))
+    
+        sniffer_thread = threading.Thread(target=sniffer.run)
         monitor_thread.start()
         sniffer_thread.start()
-
+    
         while not self.stop:
             time.sleep(0.1)
-
+    
         sniffer_thread.join()
         monitor_thread.join()
+
