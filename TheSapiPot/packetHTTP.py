@@ -29,7 +29,7 @@ class ModelHTTP:
             
     def extract_variables_from_requests(request: Packet):
         url = self.unquote_link(self.make_url(request))
-       try:
+        try:
             url = urlparse(url)
             url = parse_qs(url.query)
     
