@@ -35,18 +35,22 @@ class modelHTTP:
                     
     def extract_variables_from_requests(self,request: Packet):
         url = self.make_url(request)
-        # url = self.unquote_link(url)
+        url = self.unquote_link(url)
         try:
-            parsed_url = urlparse(url)
-            query_params = parse_qs(parsed_url.query)
+            url = urlparse(url)
+            url = parse_qs(parsed_url.query)
 
-            if 'user_token' in query_params:
-                del query_params['user_token']
+            if 'user_token' in url:
+                del url['user_token']
+            if 'Login' in url:
+                del url['Login']
+            if 'Submit' in url:
+                del url['Submit']
+                
+            url = [value for values in url.values() for value in values]
+            url = ' '.join(url)
 
-            query_values = [value for values in query_params.values() for value in values]
-            query_string = ' '.join(query_values)
-
-            return query_string
+            return url
         except ValueError:
             return None
 
