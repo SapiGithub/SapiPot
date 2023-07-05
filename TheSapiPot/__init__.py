@@ -54,26 +54,9 @@ class HoneyPot:
             if check_MTIM(packet):
                 self.logger.info(f"[ARP SPOOF]\n[*]Packet Summary: {packet.summary()}\n")
 
-    def signal_handler(self, signum, frame):
-        self.stop = True
-
     def run(self):
-        signal.signal(signal.SIGINT, self.signal_handler)
-
-        print(f"[*] Filter: For IPAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
-        sniffer = Sniffer(prn=self.logging_packet, interface=self.interface, host_ip=self.host)
-        monitor_thread = threading.Thread(target=start_monitoring, args=(self.dirfile, self.logger))
-
-        sniffer_thread = threading.Thread(target=sniffer.run)
-        monitor_thread.start()
-        sniffer_thread.start()
-
-        try:
-            while True:
-                time.sleep(0.1)
-        except KeyboardInterrupt:
-            self.stop = True
-
-        sniffer_thread.join()
-        monitor_thread.join()
+        print(f"[*] Filter: For IpAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
+        sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,host_ip=self.host)
+        sniffer.run()
+        start_monitoring(self.dirfile,self.logger)
 
