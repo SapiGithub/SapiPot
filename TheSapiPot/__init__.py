@@ -51,7 +51,7 @@ class HoneyPot(object):
                     self.logger.info(f"[UDP port scan]\n[*]Packet Summary: {packet.summary()}\n")
             except IndexError:
                 pass
-        if packet.haslayer(ARP):
+        elif packet.haslayer(ARP):
             if check_MTIM(packet):
                 self.logger.info(f"[ARP SPOOF]\n[*]Packet Summary: {packet.summary()}\n")
             else:
