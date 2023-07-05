@@ -6,9 +6,6 @@ def check_MTIM(packet: Packet) -> bool:
             realMacAddress = arping(packet[ARP].psrc, verbose=0)[0][0][1].hwsrc
         except IndexError:
             return False
-        recivMacAddress =  packet[ARP].hwsrc
-        if realMacAddress != recivMacAddress:
-            return True
-        else:
-            return False
+        return realMacAddress != packet[ARP].hwsrc
 
+    return False
