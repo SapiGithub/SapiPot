@@ -11,14 +11,14 @@ class Sniffer:
         else:
             self.prn = lambda p: f"{p.summary()}"
         
-        self.protocols = ['tcp','arp','udp']
-        self.thread = {}
+        # self.protocols = ['tcp','arp','udp']
+        # self.thread = {}
         
-    def run(self):
-        for protocol in self.protocols:
-            self.thread[protocol] = threading.Thread(target=self._sniff, args=(protocol,))
-            self.thread[protocol].start()
+    # def run(self):
+    #     for protocol in self.protocols:
+    #         self.thread[protocol] = threading.Thread(target=self._sniff, args=(protocol,))
+    #         self.thread[protocol].start()
 
-    def _sniff(self,protocol):
+    def run(self,protocol):
         packet_filter = lambda p:is_host(p, self.host_ip)
         sniff(prn=self.prn, iface=self.interface,lfilter=packet_filter,store=False, filter=f'{protocol}')
