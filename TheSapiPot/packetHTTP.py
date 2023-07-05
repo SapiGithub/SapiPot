@@ -38,7 +38,7 @@ class modelHTTP:
         url = self.unquote_link(url)
         try:
             url = urlparse(url)
-            url = parse_qs(parsed_url.query)
+            url = parse_qs(url.query)
 
             if 'user_token' in url:
                 del url['user_token']
