@@ -9,4 +9,6 @@ def check_MTIM(packet: Packet) -> bool:
         recivMacAddress =  packet[ARP].hwsrc
         if realMacAddress != recivMacAddress:
             return True
+        else:
+            return False
 
