@@ -33,6 +33,7 @@ class HoneyPot:
         if packet.haslayer(TCP):
             ip = packet[IP]
             tcp = packet[TCP]
+            flags = tcp.flags
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
                 prd = modelHTTP(packet)
                 if prd:
