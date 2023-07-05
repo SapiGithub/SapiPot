@@ -21,4 +21,4 @@ class Sniffer:
 
     def run(self):
         packet_filter = lambda p:is_host(p, self.host_ip)
-        sniff(prn=self.prn, iface=self.interface,lfilter=packet_filter,store=False')
+        sniff(prn=self.prn, iface=self.interface,lfilter=packet_filter,store='False')
