@@ -1,5 +1,4 @@
 import logging
-import signal
 from scapy.all import *
 from scapy.layers.inet import IP, TCP
 from scapy.layers.http import HTTPRequest
@@ -54,23 +53,21 @@ class HoneyPot:
             if check_MTIM(packet):
                 self.logger.info(f"[ARP SPOOF]\n[*]Packet Summary: {packet.summary()}\n")
 
-    def signal_handler(self, signum, frame):
-        self.stop = True
-
     def run(self):
-        signal.signal(signal.SIGINT, self.signal_handler)
-    
-        print(f"[*] Filter: For IPAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
-        sniffer = Sniffer(prn=self.logging_packet, interface=self.interface, host_ip=self.host)
-        monitor_thread = threading.Thread(target=start_monitoring, args=(self.dirfile, self.logger))
-    
-        sniffer_thread = threading.Thread(target=sniffer.run)
-        monitor_thread.start()
-        sniffer_thread.start()
-    
-        while not self.stop:
-            time.sleep(0.1)
-    
-        sniffer_thread.join()
-        monitor_thread.join()
+        try:
+            print(f"[*] Filter: For IPAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
+            sniffer = Sniffer(prn=self.logging_packet, interface=self.interface, host_ip=self.host)
+            monitor_thread = threading.Thread(target=start_monitoring, args=(self.dirfile, self.logger))
+        
+            sniffer_thread = threading.Thread(target=sniffer.run)
+            monitor_thread.start()
+            sniffer_thread.start()
+        
+            while not self.stop:
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            self.stop = True
+            sniffer_thread.join()
+            monitor_thread.join()
+            sys.exit(0)
 
