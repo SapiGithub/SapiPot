@@ -19,6 +19,6 @@ class Sniffer:
     #         self.thread[protocol] = threading.Thread(target=self._sniff, args=(protocol,))
     #         self.thread[protocol].start()
 
-    def run(self,protocol):
+    def run(self):
         packet_filter = lambda p:is_host(p, self.host_ip)
         sniff(prn=self.prn, iface=self.interface,lfilter=packet_filter,store=False')
