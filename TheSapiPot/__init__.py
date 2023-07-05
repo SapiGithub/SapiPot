@@ -42,7 +42,7 @@ class HoneyPot(object):
                         self.logger.info(f"[HTTP Attack]\n[*]Packet Summary: {packet.summary()}\n[*]Packet Payload: {packet[HTTPRequest].Path.decode()}\n[*]AI Prediction: \n{prd.predicts()}\n") 
                 else:
                     pass 
-            if (flags in ["RA" ,"R", "FA", "F"]) and not ((tcp.dport in [80,8080,443] or tcp.sport in [80,8080,443])):
+            elif (flags in ["RA" ,"R", "FA", "F"]) and not ((tcp.dport in [80,8080,443] or tcp.sport in [80,8080,443])):
                 self.logger.info(f"[Port Scan]\n[*]Packet Summary: {packet.summary()}\n")
         elif packet.haslayer(UDP):
             try:
