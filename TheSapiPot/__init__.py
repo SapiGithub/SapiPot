@@ -15,7 +15,6 @@ class HoneyPot:
         self.interface = interface
         self.dirfile = dirfile
         self.logfile = logfile
-        self.stop = False
 
         logging.basicConfig(
             level=logging.DEBUG,
