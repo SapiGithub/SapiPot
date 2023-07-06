@@ -59,5 +59,5 @@ class modelHTTP:
                 data_percentages = results * 100
                 output = '\n'.join([f'{label}: {percentage:.2f}%' for label, percentage in zip(self.labels_len, data_percentages)])
                 return output
-        return None
+        return False
 
