@@ -16,7 +16,7 @@ class ModelHTTP:
         with open('TheSapiPot/model/tokenizer_sentAn.pickle', 'rb') as handle:
             self.tokenizer,self.labels_len = pickle.load(handle)
 
-    def unquote_link(url_link: str):
+    def unquote_link(self,url_link: str):
         try:
             return unquote_plus(unquote_plus(url_link))
         except TypeError:
@@ -29,7 +29,7 @@ class ModelHTTP:
         else:
             return httpRequest.Path.decode()
             
-    def extract_variables_from_requests(request: Packet):
+    def extract_variables_from_requests(self, request: Packet):
         url = self.unquote_link(self.make_url(request))
         try:
             url = urlparse(url)
@@ -41,7 +41,7 @@ class ModelHTTP:
         except ValueError:
             return None
 
-    def spaced_variables(var_list: str):
+    def spaced_variables(self,var_list: str):
         escaped_string = re.sub(r'([:()])', r'\\\1', var_list)
         spaced_string = ' '.join(escaped_string)
         return spaced_string
