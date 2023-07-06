@@ -10,7 +10,7 @@ This project focuses on creating a honeypot that specializes in TCP HTTP payload
 - watchdog==3.0.0
 
 ## Installation
-Used v1.0 just leave the master :)
+updated v1.1
 1. Clone the repository:
 
 ```bash
