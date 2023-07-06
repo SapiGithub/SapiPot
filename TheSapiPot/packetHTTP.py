@@ -3,6 +3,7 @@ from scapy.all import *
 from scapy.layers.http import HTTPRequest
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import numpy as np
 import pickle
 from urllib.parse import unquote_plus, urlparse, parse_qs
 
