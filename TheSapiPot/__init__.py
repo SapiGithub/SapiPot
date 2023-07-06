@@ -3,10 +3,11 @@ import signal
 from scapy.all import *
 from scapy.layers.inet import IP, TCP
 from scapy.layers.http import HTTPRequest
-from TheSapiPot.packetHTTP import modelHTTP
+from TheSapiPot.packetHTTP import ModelHTTP
 from TheSapiPot.sniff import Sniffer
 from TheSapiPot.packetARP import check_MTIM
 from TheSapiPot.sniffDir import start_monitoring
+from TheSapiPot.packetPort import check_Port
 
 class HoneyPot:
     def __init__(self, host, interface, dirfile, logfile):
@@ -35,7 +36,7 @@ class HoneyPot:
             tcp = packet[TCP]
             flags = tcp.flags
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
-                prd = modelHTTP(packet)
+                prd = ModelHTTP(packet)
                 if prd:
                     if packet.haslayer(Raw):
                         self.logger.info(f"[HTTP Attack]\n[*]Packet Summary: {packet.summary()}\n[*]Packet Payload: {packet[Raw].load.decode()}\n[*]AI Prediction: \n{prd.predicts()}\n")
