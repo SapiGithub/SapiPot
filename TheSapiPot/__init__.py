@@ -1,5 +1,6 @@
 import logging
 import tensorflow as tf
+import pickle
 from scapy.all import *
 from scapy.layers.inet import IP, TCP
 from scapy.layers.http import HTTPRequest
