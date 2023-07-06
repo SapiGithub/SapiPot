@@ -1,7 +1,7 @@
 from scapy.all import *
 
 def check_MTIM(packet: Packet) -> bool:
-    if packet.haslayer(ARP) and packet[ARP].op == 2:
+    if packet[ARP].op == 2:
         try:
             realMacAddress = arping(packet[ARP].psrc, verbose=0)[0][0][1].hwsrc
         except IndexError:
