@@ -8,14 +8,14 @@ import pickle
 from urllib.parse import unquote_plus, urlparse, parse_qs
 
 class ModelHTTP:
-    def __init__(self,request: Packet):
+    def __init__(self,request: Packet,**tfm):
         self.max_length = 300
         self.trunc_type='post'
         self.padding_type='post'
         self.request = request
-        self.model = tf.keras.models.load_model("TheSapiPot/model/SentAn")
-        with open('TheSapiPot/model/tokenizer_sentAn.pickle', 'rb') as handle:
-            self.tokenizer,self.labels_len = pickle.load(handle)
+        self.model = tfm['model']
+        self.tokenizer= tfm['token']
+        self.labels_len = tfm['label']
 
     def unquote_link(self,url_link: str):
         try:

@@ -1,5 +1,5 @@
 import logging
-import signal
+import tensorflow as tf
 from scapy.all import *
 from scapy.layers.inet import IP, TCP
 from scapy.layers.http import HTTPRequest
@@ -15,6 +15,9 @@ class HoneyPot:
         self.interface = interface
         self.dirfile = dirfile
         self.logfile = logfile
+        self.model = tf.keras.models.load_model("TheSapiPot/model/SentAn")
+        with open('TheSapiPot/model/tokenizer_sentAn.pickle', 'rb') as handle:
+            self.tokenizer,self.labels_len = pickle.load(handle)
 
         logging.basicConfig(
             level=logging.DEBUG,
@@ -33,7 +36,7 @@ class HoneyPot:
         if packet.haslayer(TCP):
             ip = packet[IP]
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
-                prd = ModelHTTP(packet)
+                prd = ModelHTTP(packet,model=self.model,token=self.tokenizer,label=self.labels_len)
                 if prd.predicts():
                     if packet.haslayer(Raw):
                         self.logger.info(f"[HTTP Attack]\n[*]Packet Summary: {packet.summary()}\n[*]Packet Payload: {packet[Raw].load.decode()}\n[*]AI Prediction: \n{prd.predicts()}\n")
