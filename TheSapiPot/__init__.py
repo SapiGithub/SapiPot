@@ -31,7 +31,7 @@ class HoneyPot:
 
     def logging_packet(self, packet: Packet):
         if packet.haslayer(TCP):
-            ip = packet[IP
+            ip = packet[IP]
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
                 prd = ModelHTTP(packet)
                 if prd.predicts():
