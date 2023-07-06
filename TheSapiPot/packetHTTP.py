@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 from urllib.parse import unquote_plus, urlparse, parse_qs
 
-class modelHTTP:
+class ModelHTTP:
     def __init__(self,request: Packet):
         self.max_length = 300
         self.trunc_type='post'
