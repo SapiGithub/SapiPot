@@ -44,7 +44,7 @@ class HoneyPot:
             if check_Port(packet,self.host):
                 self.logger.info(f"[UDP port scan]\n[*]Packet Summary: {packet.summary()}\n")
         elif packet.haslayer(ARP):
-            if check_MTIM(packet):
+            if check_MTIM(packet, self.host):
                 self.logger.info(f"[ARP SPOOF]\n[*]Packet Summary: {packet.summary()}\n")
 
     def run(self):
