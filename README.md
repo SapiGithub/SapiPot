@@ -13,7 +13,7 @@ This project focuses on creating a honeypot that specializes in TCP HTTP payload
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/SapiGit/SapiPot.git
+git clone -b v1.1https://github.com/SapiGit/SapiPot.git
 ```
 
 2. Navigate to the project directory:
