@@ -9,7 +9,7 @@ config_file="$1"
 nohup sudo python3 -m TheSapiPot "$config_file" > /dev/null 2>&1 &
 
 # Generate stop.sh
-echo "#!/bin/bash" > stop_script.sh
-echo "" >> stop_script.sh
+echo "#!/bin/bash" > stop.sh
+echo "" >> stop.sh
 echo "pkill -f \"python3 -m TheSapiPot $config_file\"" >> stop.sh
 chmod +x stop.sh
