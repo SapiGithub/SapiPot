@@ -31,15 +31,22 @@ sudo pip3 install -r requirements.txt
 ## Usage
 1. Modify the configuration files and settings according to your preferences.
 
-2. Run the honeypot script:
+2. Start the honeypot script:
 
 ```bash
-sudo python3 -m TheSapiPot <config_filepath>
+chmod +x start.sh
+sudo ./start.sh <config_filepath>
 ```
 
 3. The honeypot will start listening for incoming connections on the specified Ip in interface.
 
 4. Monitor the honeypot logs and analyze the detected attacks.
+   
+5. Stop the honeypot script (auto genereted by start.sh):
+
+```bash
+sudo ./stop.sh
+```
 
 ## Configuration
 - `TheSapiPot` - Main script for running the honeypot and handling incoming connections.
