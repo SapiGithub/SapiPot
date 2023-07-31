@@ -9,6 +9,7 @@ from TheSapiPot.sniff import Sniffer
 from TheSapiPot.packetARP import check_MTIM
 from TheSapiPot.sniffDir import start_monitoring
 from TheSapiPot.packetPort import check_Port
+import threading
 
 class HoneyPot:
     def __init__(self, host, interface, dirfile, logfile):
@@ -55,6 +56,15 @@ class HoneyPot:
     def run(self):
         print(f"[*] Filter: For IpAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
         sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,host_ip=self.host)
-        sniffer.run()
-        start_monitoring(self.dirfile,self.logger)
+        # Create threads with arguments
+        thread1 = threading.Thread(target=start_monitoring, args=(self.dirfile,self.logger))
+        thread2 = threading.Thread(target=sniffer.run)
+        
+        # Start the threads
+        thread1.start()
+        thread2.start()
+        
+        # Wait for the threads to finish
+        thread1.join()
+        thread2.join()
 
