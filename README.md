@@ -14,7 +14,7 @@ This project focuses on creating a honeypot that specializes in TCP HTTP payload
 1. Clone the repository:
 
 ```bash
-git clone -b v1.1https://github.com/SapiGit/SapiPot.git
+git clone -b v1.1 https://github.com/SapiGit/SapiPot.git
 ```
 
 2. Navigate to the project directory:
@@ -54,7 +54,7 @@ or close windows GUI
 - `TheSapiPot` - Main script for running the honeypot and handling incoming connections.
 - `sapipot.ini` - Example forConfiguration file for customizing the honeypot settings.
 - `TheSapiPot/model/SentAn` - Directory containing TensorFlow models for sentiment analysis.
-- `sapipot.log` - Example for Log file where honeypot logs are stored.
+- `sapipot.csv` - Example for Log file where honeypot csv are stored.
 
 ## Contributing
 Contributions are welcome! If you would like to contribute to this project, please follow these steps:
