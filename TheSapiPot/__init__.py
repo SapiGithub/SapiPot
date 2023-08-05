@@ -124,8 +124,8 @@ class HoneyPot:
         # Create Treeview (Table) with three columns: Date, Payload, Prediction
         table = ttk.Treeview(root, columns=("Date", "Attack Type", "Packet Summary","Packet Payload","Prediction"), show="headings")
         table.heading("Date", text="Date", command=on_sort_date)
-        table.heading("Attack Type", text="Payload", command=on_sort_attackType)
-        table.heading("Packet Summary", text="Data", command=on_sort_packetSummary)
+        table.heading("Attack Type", text="Attack Type", command=on_sort_attackType)
+        table.heading("Packet Summary", text="Packet Summary", command=on_sort_packetSummary)
         table.heading("Packet Payload", text="Packet Payload", command=on_sort_packetPayload)
         table.heading("Prediction", text="Prediction", command=on_sort_aiPrediction)
         table.pack(fill=tk.BOTH, expand=True)
