@@ -6,10 +6,10 @@ import time
 
 
 class FolderMonitor(FileSystemEventHandler):
-    def __init__(self, monitor_folder, log_file):
+    def __init__(self, monitor_folder, log):
         super().__init__()
         self.monitor_folder = monitor_folder
-        self.logger = log_file
+        self.log = log
         self.is_directory = lambda arg: "Directory" if arg else "File"
         
     def on_any_event(self, event):
