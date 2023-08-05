@@ -34,7 +34,7 @@ class ModelHTTP:
         try:
             url = urlparse(url)
             url = parse_qs(url.query)
-            keys_to_remove = {'user_token', 'Login', 'Submit'}
+            keys_to_remove = {'username','user_token', 'Login', 'Submit'}
             url = [value for value_list in url.values() for value in value_list if value not in keys_to_remove]
             return ' '.join(url)
         except ValueError:
