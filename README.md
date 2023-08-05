@@ -8,6 +8,7 @@ This project focuses on creating a honeypot that specializes in TCP HTTP payload
 - numpy==1.23.5
 - urllib3==1.26.12
 - watchdog==3.0.0
+- tk==0.1.0
 
 ## Installation
 1. Clone the repository:
@@ -47,6 +48,7 @@ sudo ./start.sh <config_filepath>
 ```bash
 sudo ./stop.sh
 ```
+or close windows GUI
 
 ## Configuration
 - `TheSapiPot` - Main script for running the honeypot and handling incoming connections.
