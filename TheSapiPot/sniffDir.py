@@ -10,7 +10,6 @@ class FolderMonitor(FileSystemEventHandler):
         super().__init__()
         self.monitor_folder = monitor_folder
         self.log = log
-        self.is_directory = lambda arg: "Directory" if arg else "File"
         
     def on_any_event(self, event):
         self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[Folder Monitor]", "Packet Summary": "", "Packet Payload":event.src_path, "Prediction": [event.event_type]},)
