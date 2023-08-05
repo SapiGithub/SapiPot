@@ -125,7 +125,7 @@ class HoneyPot:
         table.heading("Date", text="Date", command=on_sort_date)
         table.heading("Attack Type", text="Payload", command=on_sort_attackType)
         table.heading("Packet Summary", text="Data", command=on_sort_packetSummary)
-        table.heading("Packet Payload", text="Prediction", command=on_sort_packetPayload)
+        table.heading("Packet Payload", text="Packet Payload", command=on_sort_packetPayload)
         table.heading("Prediction", text="Prediction", command=on_sort_aiPrediction)
         table.pack(fill=tk.BOTH, expand=True)
 
