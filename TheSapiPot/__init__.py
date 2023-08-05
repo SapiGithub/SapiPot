@@ -34,9 +34,9 @@ class HoneyPot:
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
                 if self.prd.predicts(packet):
                     if packet.haslayer(Raw):
-                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[Raw].load.decode(), "Prediction": prd.predicts()},)
+                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[Raw].load.decode(), "Prediction": self.prd.predicts()},)
                     else:
-                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[HTTPRequest].Path.decode(), "Prediction": prd.predicts()},)
+                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[HTTPRequest].Path.decode(), "Prediction": self.prd.predicts()},)
             elif check_Port(packet):
                 self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[Port Scan]", "Packet Summary": packet.summary(), "Packet Payload":"", "Prediction": ["TCP Port Scan"]},)
         elif packet.haslayer(UDP):
