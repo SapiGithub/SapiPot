@@ -2,6 +2,7 @@ import os
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import time
 
 
 class FolderMonitor(FileSystemEventHandler):
@@ -12,7 +13,8 @@ class FolderMonitor(FileSystemEventHandler):
         self.is_directory = lambda arg: "Directory" if arg else "File"
         
     def on_any_event(self, event):
-        self.logger.info(f'[File Monitor]\n[*]Event Type: {event.event_type}\n[*]Target: {event.src_path}\n[*]Target Type: {self.is_directory(event.is_directory)}')
+        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[Folder Monitor]", "Packet Summary": "", "Packet Payload":event.src_path, "Prediction": [event.event_type]},)
+        # self.logger.info(f'[File Monitor]\n[*]Event Type: {event.event_type}\n[*]Target: {event.src_path}\n[*]Target Type: {self.is_directory(event.is_directory)}')
 
 def start_monitoring(monitor_folder, log_file):
     monitor = FolderMonitor(monitor_folder, log_file)

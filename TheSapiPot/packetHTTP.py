@@ -8,11 +8,10 @@ import pickle
 from urllib.parse import unquote_plus, urlparse, parse_qs
 
 class ModelHTTP:
-    def __init__(self,request: Packet,**tfm):
+    def __init__(self,**tfm):
         self.max_length = 300
         self.trunc_type='post'
         self.padding_type='post'
-        self.request = request
         self.model = tfm['model']
         self.tokenizer= tfm['token']
         self.labels_len = tfm['label']
@@ -35,7 +34,6 @@ class ModelHTTP:
         try:
             url = urlparse(url)
             url = parse_qs(url.query)
-    
             keys_to_remove = {'user_token', 'Login', 'Submit'}
             url = [value for value_list in url.values() for value in value_list if value not in keys_to_remove]
             return ' '.join(url)
@@ -47,9 +45,8 @@ class ModelHTTP:
         spaced_string = ' '.join(escaped_string)
         return spaced_string
 
-    def predicts(self):
-        query_vars = self.extract_variables_from_requests(self.request)
-        
+    def predicts(self,request:Packet):
+        query_vars = self.extract_variables_from_requests(request)
         if query_vars:
             sentence = [self.spaced_variables(query_vars)]
             sequences = self.tokenizer.texts_to_sequences(sentence)
@@ -58,7 +55,7 @@ class ModelHTTP:
             
             if np.sum(results) > 0.5:
                 data_percentages = results * 100
-                output = '\n'.join([f'{label}: {percentage:.2f}%' for label, percentage in zip(self.labels_len, data_percentages)])
+                output = [f'{label}: {percentage:.2f}%' for label, percentage in zip(self.labels_len, data_percentages)]
                 return output
         return False
 

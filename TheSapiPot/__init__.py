@@ -10,6 +10,11 @@ from TheSapiPot.packetARP import check_MTIM
 from TheSapiPot.sniffDir import start_monitoring
 from TheSapiPot.packetPort import check_Port
 import threading
+import tkinter as tk
+from tkinter import ttk
+import asyncio
+import csv
+import time
 
 class HoneyPot:
     def __init__(self, host, interface, dirfile, logfile):
@@ -20,51 +25,142 @@ class HoneyPot:
         self.model = tf.keras.models.load_model("TheSapiPot/model/SentAn")
         with open('TheSapiPot/model/tokenizer_sentAn.pickle', 'rb') as handle:
             self.tokenizer,self.labels_len = pickle.load(handle)
-
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-            datefmt='%y-%m-%d %H:%M:%S',
-            filename=self.logfile,
-            filemode='w'
-        )
-
-        self.logger = logging.getLogger(__name__)
-        logging.getLogger('watchdog.observers.inotify_buffer').setLevel(logging.WARNING)
-        self.logger.info(f'[*] logfile: {self.logfile}')
-        self.logger.info("[*] HoneyPot Initializing....... ")
+        self.prd = ModelHTTP(model=self.model,token=self.tokenizer,label=self.labels_len)
+        self.log = []
 
     def logging_packet(self, packet: Packet):
         if packet.haslayer(TCP):
             ip = packet[IP]
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
-                prd = ModelHTTP(packet,model=self.model,token=self.tokenizer,label=self.labels_len)
-                if prd.predicts():
+                if self.prd.predicts(packet):
                     if packet.haslayer(Raw):
-                        self.logger.info(f"[HTTP Attack]\n[*]Packet Summary: {packet.summary()}\n[*]Packet Payload: {packet[Raw].load.decode()}\n[*]AI Prediction: \n{prd.predicts()}\n")
+                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[Raw].load.decode(), "Prediction": prd.predicts()},)
                     else:
-                        self.logger.info(f"[HTTP Attack]\n[*]Packet Summary: {packet.summary()}\n[*]Packet Payload: {packet[HTTPRequest].Path.decode()}\n[*]AI Prediction: \n{prd.predicts()}\n")
+                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[HTTPRequest].Path.decode(), "Prediction": prd.predicts()},)
             elif check_Port(packet):
-                self.logger.info(f"[Port Scan]\n[*]Packet Summary: {packet.summary()}\n")
+                self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[Port Scan]", "Packet Summary": packet.summary(), "Packet Payload":"", "Prediction": ["TCP Port Scan"]},)
         elif packet.haslayer(UDP):
             if check_Port(packet,self.host):
-                self.logger.info(f"[UDP port scan]\n[*]Packet Summary: {packet.summary()}\n")
+                self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[Port Scan]", "Packet Summary": packet.summary(), "Packet Payload":"", "Prediction": ["UDP Port Scan"]},)
         elif packet.haslayer(ARP):
             if check_MTIM(packet, self.host):
-                self.logger.info(f"[ARP SPOOF]\n[*]Packet Summary: {packet.summary()}\n")
+                self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[ARP Spoof]", "Packet Summary": packet.summary(), "Packet Payload":"", "Prediction": ["ARP Spoof Attack"]},)
 
     def run(self):
-        print(f"[*] Filter: For IpAddress: {self.host}\n[*] Monitoring For Directory or File: {self.dirfile}")
         sniffer = Sniffer(prn=self.logging_packet, interface=self.interface,host_ip=self.host)
-        # Create threads with arguments
-        thread1 = threading.Thread(target=start_monitoring, args=(self.dirfile,self.logger))
+        thread1 = threading.Thread(target=start_monitoring, args=(self.dirfile,self.log))
         thread2 = threading.Thread(target=sniffer.run)
-        
-        # Start the threads
+        thread1.daemon = True
+        thread2.daemon = True
         thread1.start()
         thread2.start()
-        
-        # Wait for the threads to finish
-        thread1.join()
-        thread2.join()
+        async def update_table():
+            while True:
+                data = self.log
+                if data is not None:
+                    for entry in data:
+                        prediction_str = ", ".join(entry["Prediction"])
+                        table.insert("", "end", values=(entry["Date"], entry["Attack Type"],entry["Packet Summary"],entry["Packet Payload"], prediction_str))
+                        self.log.clear()
+                await asyncio.sleep(1)
 
+        def save_to_file():
+            with open(self.logfile, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(["Date", "Attack Type", "Packet Summary","Packet Payload","Prediction"])
+                for row in table.get_children():
+                    date,attackType,packetSummary,packetPayload, aiPrediction = table.item(row)["values"]
+                    writer.writerow([date,attackType,packetSummary,packetPayload, aiPrediction])
+
+        def toggle_prediction(event):
+            item_iid = table.identify_row(event.y)
+            if item_iid:
+                children = table.get_children(item_iid)
+                if children:
+                    table.delete(children)
+                else:
+                    item = table.item(item_iid)
+                    predictions = item["values"][4].split(", ")
+                    for prediction in predictions:
+                        table.insert(item_iid, "end", values=("","","","", prediction))
+
+        def sort_column(col_idx, descending=False):
+            data = [(table.set(child, col_idx), child) for child in table.get_children('')]
+            data.sort(reverse=descending)
+            for idx, item in enumerate(data):
+                table.move(item[1], '', idx)
+
+        def on_sort_date():
+            sort_column(0)
+
+        def on_sort_attackType():
+            sort_column(1)
+
+        def on_sort_packetSummary():
+            sort_column(2)
+
+        def on_sort_packetPayload():
+            sort_column(3)
+
+        def on_sort_aiPrediction():
+            sort_column(4)
+            
+        def on_search():
+            search_string = search_entry.get()
+            for item in table.get_children():
+                values = table.item(item, "values")
+                if search_string in values[1]:
+                    table.selection_set(item)
+                else:
+                    table.selection_remove(item)
+
+        # GUI setup
+        root = tk.Tk()
+        root.title("Sapi Pot: Honeypot")
+        # Create an instance of Style widget
+        style=ttk.Style()
+        style.theme_use('clam')
+        # Create Treeview (Table) with three columns: Date, Payload, Prediction
+        table = ttk.Treeview(root, columns=("Date", "Attack Type", "Packet Summary","Packet Payload","Prediction"), show="headings")
+        table.heading("Date", text="Date", command=on_sort_date)
+        table.heading("Attack Type", text="Payload", command=on_sort_attackType)
+        table.heading("Packet Summary", text="Data", command=on_sort_packetSummary)
+        table.heading("Packet Payload", text="Prediction", command=on_sort_packetPayload)
+        table.heading("Prediction", text="Prediction", command=on_sort_aiPrediction)
+        table.pack(fill=tk.BOTH, expand=True)
+
+        # Create Entry and Search Button for filtering by Date
+        search_frame = ttk.Frame(root)
+        search_frame.pack(pady=10)
+        search_entry = ttk.Entry(search_frame)
+        search_entry.pack(side=tk.LEFT, padx=5)
+        search_button = ttk.Button(search_frame, text="Search", command=on_search)
+        search_button.pack(side=tk.LEFT, padx=5)
+
+        # Add a vertical scrollbar for the table
+        scrollbar = ttk.Scrollbar(root, orient="vertical", command=table.yview)
+        table.configure(yscrollcommand=scrollbar.set)
+
+        # Pack the table and scrollbar to the right and fill both horizontally and vertically
+        table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Button to copy data to a file
+        copy_button = ttk.Button(root, text="Copy to File", command=save_to_file)
+        copy_button.pack()
+
+        # Start the asyncio event loop to run the coroutine
+        async def start_update():
+            await update_table()
+
+        # Run the asyncio event loop in a separate thread to keep the GUI responsive
+        update_thread = threading.Thread(target=asyncio.run, args=(start_update(),))
+        update_thread.daemon = True  # Make sure the thread terminates when the GUI is closed
+        update_thread.start()
+
+        # Bind the event to expand/collapse the prediction values
+        table.bind("<Button-1>", toggle_prediction)
+
+        root.mainloop()
+        # thread1.join()
+        # thread2.join()

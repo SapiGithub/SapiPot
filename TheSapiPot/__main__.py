@@ -31,18 +31,18 @@ config.read(config_filepath)
 interface = config.get("default",'interface',raw=True,fallback=conf.iface)
 host = get_if_addr(interface)
 dirfile = config.get("default",'dirfile',raw=True)
-logfile = config.get("default",'logfile', raw=True)
+csvfile = config.get("default",'csvfile', raw=True)
 if(dirfile == ""):
   desktop_path = os.path.expanduser("~/Desktop")
   folder_path = os.path.join(desktop_path, "SapiDirFile")
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)
   dirfile=folder_path
-if(logfile == ""):
+if(csvfile == ""):
   desktop_path = os.path.expanduser("~/Desktop")
-  log_path = os.path.join(desktop_path, "SapiPot.log")
+  log_path = os.path.join(desktop_path, "SapiPot.csv")
   if not os.path.exists(log_path):
     open(log_path, 'a').close()
-  logfile=log_path
-honeyPot = HoneyPot(host,interface,dirfile,logfile)
+  csvfile=log_path
+honeyPot = HoneyPot(host,interface,dirfile,csvfile)
 honeyPot.run()
