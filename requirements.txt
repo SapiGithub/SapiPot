@@ -3,3 +3,4 @@ tensorflow==2.12.*
 numpy==1.23.5
 urllib3==1.26.12
 watchdog==3.0.0
+tk==0.1.0
