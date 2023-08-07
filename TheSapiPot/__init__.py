@@ -32,12 +32,11 @@ class HoneyPot:
         if packet.haslayer(TCP):
             ip = packet[IP]
             if packet.haslayer(HTTPRequest) and ip.dst == self.host:
-                out = self.prd.predicts(packet)
-                if out:
+                if self.prd.predicts(packet):
                     if packet.haslayer(Raw):
-                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[Raw].load.decode(), "Prediction": out},)
+                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[Raw].load.decode(), "Prediction": prd.predicts()},)
                     else:
-                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[HTTPRequest].Path.decode(), "Prediction": out},)
+                        self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[HTTP Attack]", "Packet Summary": packet.summary(), "Packet Payload":packet[HTTPRequest].Path.decode(), "Prediction": prd.predicts()},)
             elif check_Port(packet):
                 self.log.append({"Date": time.strftime("%H:%M:%S", time.localtime()),"Attack Type":"[Port Scan]", "Packet Summary": packet.summary(), "Packet Payload":"", "Prediction": ["TCP Port Scan"]},)
         elif packet.haslayer(UDP):
@@ -55,14 +54,18 @@ class HoneyPot:
         thread2.daemon = True
         thread1.start()
         thread2.start()
+        detach_item = []
+        self.paused = False
+
         async def update_table():
             while True:
-                data = self.log
-                if data is not None:
-                    for entry in data:
-                        prediction_str = ", ".join(entry["Prediction"])
-                        table.insert("", "end", values=(entry["Date"], entry["Attack Type"],entry["Packet Summary"],entry["Packet Payload"], prediction_str))
-                        self.log.clear()
+                if self.paused == False:
+                    data = self.log
+                    if data is not None:
+                        for entry in data:
+                            prediction_str = ", ".join(entry["Prediction"])
+                            table.insert("", "end", values=(entry["Date"], entry["Attack Type"],entry["Packet Summary"],entry["Packet Payload"], prediction_str))
+                self.log.clear()
                 await asyncio.sleep(1)
 
         def save_to_file():
@@ -109,11 +112,33 @@ class HoneyPot:
         def on_search():
             search_string = search_entry.get()
             for item in table.get_children():
-                values = table.item(item, "values")
-                if search_string in values[1]:
+                values = table.item(item)["values"][1]
+                if not(search_string in values):
                     table.selection_set(item)
-                else:
-                    table.selection_remove(item)
+                    table.detach(item)
+                    detach_item.append(item)
+            if not(detach_item == []):
+                show_all_button.config(style='Blue.TButton')
+
+                # else:
+                #     table.selection_remove(item)
+        def show_all():
+            for item in detach_item:
+                table.reattach(item, "", "end")
+            detach_item.clear()
+            show_all_button.config(style='TButton')
+
+        def delete_all():
+            table.delete(*table.get_children())
+            detach_item.clear()
+
+        def pause_data_updates():
+            # global paused
+            self.paused = True
+
+        def play_data_updates():
+            # global paused
+            self.paused = False
 
         # GUI setup
         root = tk.Tk()
@@ -121,12 +146,17 @@ class HoneyPot:
         # Create an instance of Style widget
         style=ttk.Style()
         style.theme_use('clam')
+
+        # Configure a custom style for the "Show All" button (blue color)
+        style.configure("Blue.TButton", foreground="white", background="blue")
+        style.configure("ShowAll.TButton", foreground="black", background="SystemButtonFace")
+
         # Create Treeview (Table) with three columns: Date, Payload, Prediction
         table = ttk.Treeview(root, columns=("Date", "Attack Type", "Packet Summary","Packet Payload","Prediction"), show="headings")
         table.heading("Date", text="Date", command=on_sort_date)
-        table.heading("Attack Type", text="Attack Type", command=on_sort_attackType)
-        table.heading("Packet Summary", text="Packet Summary", command=on_sort_packetSummary)
-        table.heading("Packet Payload", text="Packet Payload", command=on_sort_packetPayload)
+        table.heading("Attack Type", text="Payload", command=on_sort_attackType)
+        table.heading("Packet Summary", text="Data", command=on_sort_packetSummary)
+        table.heading("Packet Payload", text="Prediction", command=on_sort_packetPayload)
         table.heading("Prediction", text="Prediction", command=on_sort_aiPrediction)
         table.pack(fill=tk.BOTH, expand=True)
 
@@ -149,6 +179,22 @@ class HoneyPot:
         # Button to copy data to a file
         copy_button = ttk.Button(root, text="Copy to File", command=save_to_file)
         copy_button.pack()
+
+        # Button to show all rows after filtering
+        show_all_button = ttk.Button(root, text="Show All", command=show_all)
+        show_all_button.pack()
+        
+        # Button to pause data updates
+        pause_button = ttk.Button(root, text="Pause", command=pause_data_updates)
+        pause_button.pack()
+
+        # Button to play data updates
+        play_button = ttk.Button(root, text="Play", command=play_data_updates)
+        play_button.pack()
+
+        # Button to delete all items from the table
+        delete_button = ttk.Button(root, text="Delete All", command=delete_all)
+        delete_button.pack()
 
         # Start the asyncio event loop to run the coroutine
         async def start_update():
