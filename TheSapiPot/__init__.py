@@ -149,7 +149,8 @@ class HoneyPot:
 
         # Configure a custom style for the "Show All" button (blue color)
         style.configure("Blue.TButton", foreground="white", background="blue")
-        style.configure("ShowAll.TButton", foreground="black", background="SystemButtonFace")
+        style.configure("Red.TButton", foreground="black", background="red")
+        style.configure("Green.TButton", foreground="black", background="green")
 
         # Create Treeview (Table) with three columns: Date, Payload, Prediction
         table = ttk.Treeview(root, columns=("Date", "Attack Type", "Packet Summary","Packet Payload","Prediction"), show="headings")
